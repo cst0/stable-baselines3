@@ -107,9 +107,17 @@ def test_high_dimension_action_space():
         # Tuple space is not supported by SB
         spaces.Tuple([spaces.Discrete(5), spaces.Discrete(10)]),
         # Nested dict space is not supported by SB3
-        spaces.Dict({"position": spaces.Dict({"abs": spaces.Discrete(5), "rel": spaces.Discrete(2)})}),
+        spaces.Dict(
+            {
+                "position": spaces.Dict(
+                    {"abs": spaces.Discrete(5), "rel": spaces.Discrete(2)}
+                )
+            }
+        ),
         # Small image inside a dict
-        spaces.Dict({"img": spaces.Box(low=0, high=255, shape=(32, 32, 3), dtype=np.uint8)}),
+        spaces.Dict(
+            {"img": spaces.Box(low=0, high=255, shape=(32, 32, 3), dtype=np.uint8)}
+        ),
     ],
 )
 def test_non_default_spaces(new_obs_space):
@@ -144,7 +152,9 @@ def test_non_default_spaces(new_obs_space):
         # Unbounded action space
         spaces.Box(low=-np.inf, high=1, shape=(2,), dtype=np.float32),
         # Almost good, except for one dim
-        spaces.Box(low=np.array([-1, -1, -1]), high=np.array([1, 1, 0.99]), dtype=np.float32),
+        spaces.Box(
+            low=np.array([-1, -1, -1]), high=np.array([1, 1, 0.99]), dtype=np.float32
+        ),
     ],
 )
 def test_non_default_action_spaces(new_action_space):
@@ -247,7 +257,9 @@ def test_common_failures_step():
     check_step_assert_error(env, (1, 1.0, False, {}))
 
     # Return a wrong reward
-    check_step_assert_error(env, (env.observation_space.sample(), np.ones(1), False, {}))
+    check_step_assert_error(
+        env, (env.observation_space.sample(), np.ones(1), False, {})
+    )
 
     # Info dict is not returned
     check_step_assert_error(env, (env.observation_space.sample(), 0.0, False))

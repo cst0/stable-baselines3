@@ -37,7 +37,9 @@ def test_callbacks(tmp_path, model_class):
     callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=-1200, verbose=1)
 
     # Stop training if there is no model improvement after 2 evaluations
-    callback_no_model_improvement = StopTrainingOnNoModelImprovement(max_no_improvement_evals=2, min_evals=1, verbose=1)
+    callback_no_model_improvement = StopTrainingOnNoModelImprovement(
+        max_no_improvement_evals=2, min_evals=1, verbose=1
+    )
 
     eval_callback = EvalCallback(
         eval_env,
@@ -50,14 +52,18 @@ def test_callbacks(tmp_path, model_class):
     )
     # Equivalent to the `checkpoint_callback`
     # but here in an event-driven manner
-    checkpoint_on_event = CheckpointCallback(save_freq=1, save_path=log_folder, name_prefix="event")
+    checkpoint_on_event = CheckpointCallback(
+        save_freq=1, save_path=log_folder, name_prefix="event"
+    )
 
     event_callback = EveryNTimesteps(n_steps=500, callback=checkpoint_on_event)
 
     # Stop training if max number of episodes is reached
     callback_max_episodes = StopTrainingOnMaxEpisodes(max_episodes=100, verbose=1)
 
-    callback = CallbackList([checkpoint_callback, eval_callback, event_callback, callback_max_episodes])
+    callback = CallbackList(
+        [checkpoint_callback, eval_callback, event_callback, callback_max_episodes]
+    )
     model.learn(500, callback=callback)
 
     # Check access to local variables
@@ -86,7 +92,9 @@ def test_callbacks(tmp_path, model_class):
 
         model = model_class("MlpPolicy", envs, policy_kwargs=dict(net_arch=[32]))
 
-        callback_max_episodes = StopTrainingOnMaxEpisodes(max_episodes=max_episodes, verbose=1)
+        callback_max_episodes = StopTrainingOnMaxEpisodes(
+            max_episodes=max_episodes, verbose=1
+        )
         callback = CallbackList([callback_max_episodes])
         model.learn(1000, callback=callback)
 
@@ -191,7 +199,9 @@ def test_eval_friendly_error():
     model.learn(100, callback=eval_callback)
 
     # Check synchronization
-    assert np.allclose(train_env.normalize_obs(original_obs), eval_env.normalize_obs(original_obs))
+    assert np.allclose(
+        train_env.normalize_obs(original_obs), eval_env.normalize_obs(original_obs)
+    )
 
     wrong_eval_env = gym.make("CartPole-v1")
     eval_callback = EvalCallback(
@@ -228,4 +238,6 @@ def test_checkpoint_additional_info(tmp_path):
     # Check that checkpoints can be properly loaded
     model = DQN.load(checkpoint_dir / "rl_model_200_steps.zip")
     model.load_replay_buffer(checkpoint_dir / "rl_model_replay_buffer_200_steps.pkl")
-    VecNormalize.load(checkpoint_dir / "rl_model_vecnormalize_200_steps.pkl", dummy_vec_env)
+    VecNormalize.load(
+        checkpoint_dir / "rl_model_vecnormalize_200_steps.pkl", dummy_vec_env
+    )

@@ -84,13 +84,21 @@ def read_log(tmp_path, capsys):
         elif _format == "log":
             return LogContent(_format, (tmp_path / "log.txt").read_text().splitlines())
         elif _format == "tensorboard":
-            from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
+            from tensorboard.backend.event_processing.event_accumulator import (
+                EventAccumulator,
+            )
 
             acc = EventAccumulator(str(tmp_path))
             acc.Reload()
 
             tb_values_logged = []
-            for reservoir in [acc.scalars, acc.tensors, acc.images, acc.histograms, acc.compressed_histograms]:
+            for reservoir in [
+                acc.scalars,
+                acc.tensors,
+                acc.images,
+                acc.histograms,
+                acc.compressed_histograms,
+            ]:
                 for k in reservoir.Keys():
                     tb_values_logged.append(f"{k}: {str(reservoir.Items(k))}")
 
@@ -107,7 +115,9 @@ def test_set_logger(tmp_path):
     model = A2C("MlpPolicy", "CartPole-v1", verbose=0).learn(4)
     assert model.logger.output_formats == []
 
-    model = A2C("MlpPolicy", "CartPole-v1", verbose=0, tensorboard_log=str(tmp_path)).learn(4)
+    model = A2C(
+        "MlpPolicy", "CartPole-v1", verbose=0, tensorboard_log=str(tmp_path)
+    ).learn(4)
     assert str(tmp_path) in model.logger.dir
     assert isinstance(model.logger.output_formats[0], TensorBoardOutputFormat)
 
@@ -121,7 +131,9 @@ def test_set_logger(tmp_path):
     model = A2C("MlpPolicy", "CartPole-v1", verbose=1).learn(4)
     assert isinstance(model.logger.output_formats[0], HumanOutputFormat)
     # with tensorboard
-    model = A2C("MlpPolicy", "CartPole-v1", verbose=1, tensorboard_log=str(tmp_path)).learn(4)
+    model = A2C(
+        "MlpPolicy", "CartPole-v1", verbose=1, tensorboard_log=str(tmp_path)
+    ).learn(4)
     assert isinstance(model.logger.output_formats[0], HumanOutputFormat)
     assert isinstance(model.logger.output_formats[1], TensorBoardOutputFormat)
     assert len(model.logger.output_formats) == 2
@@ -350,7 +362,9 @@ class TimeDelayEnv(gym.Env):
     def __init__(self, delay: float = 0.01):
         super().__init__()
         self.delay = delay
-        self.observation_space = gym.spaces.Box(low=-20.0, high=20.0, shape=(4,), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(
+            low=-20.0, high=20.0, shape=(4,), dtype=np.float32
+        )
         self.action_space = gym.spaces.Discrete(2)
 
     def reset(self):
@@ -415,6 +429,11 @@ def test_fps_no_div_zero(algo):
 def test_human_output_format_no_crash_on_same_keys_different_tags():
     o = HumanOutputFormat(sys.stdout, max_length=60)
     o.write(
-        {"key1/foo": "value1", "key1/bar": "value2", "key2/bizz": "value3", "key2/foo": "value4"},
+        {
+            "key1/foo": "value1",
+            "key1/bar": "value2",
+            "key2/bizz": "value3",
+            "key2/foo": "value4",
+        },
         {"key1/foo": None, "key2/bizz": None, "key1/bar": None, "key2/foo": None},
     )

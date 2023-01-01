@@ -36,8 +36,12 @@ class DummyMultiBinary(gym.Env):
 class DummyMultidimensionalAction(gym.Env):
     def __init__(self):
         super().__init__()
-        self.observation_space = gym.spaces.Box(low=-1, high=1, shape=(2,), dtype=np.float32)
-        self.action_space = gym.spaces.Box(low=-1, high=1, shape=(2, 2), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(
+            low=-1, high=1, shape=(2,), dtype=np.float32
+        )
+        self.action_space = gym.spaces.Box(
+            low=-1, high=1, shape=(2, 2), dtype=np.float32
+        )
 
     def reset(self):
         return self.observation_space.sample()
@@ -47,7 +51,10 @@ class DummyMultidimensionalAction(gym.Env):
 
 
 @pytest.mark.parametrize("model_class", [SAC, TD3, DQN])
-@pytest.mark.parametrize("env", [DummyMultiDiscreteSpace([4, 3]), DummyMultiBinary(8), DummyMultiBinary((3, 2))])
+@pytest.mark.parametrize(
+    "env",
+    [DummyMultiDiscreteSpace([4, 3]), DummyMultiBinary(8), DummyMultiBinary((3, 2))],
+)
 def test_identity_spaces(model_class, env):
     """
     Additional tests for DQ/SAC/TD3 to check observation space support
@@ -59,18 +66,24 @@ def test_identity_spaces(model_class, env):
 
     env = gym.wrappers.TimeLimit(env, max_episode_steps=100)
 
-    model = model_class("MlpPolicy", env, gamma=0.5, seed=1, policy_kwargs=dict(net_arch=[64]))
+    model = model_class(
+        "MlpPolicy", env, gamma=0.5, seed=1, policy_kwargs=dict(net_arch=[64])
+    )
     model.learn(total_timesteps=500)
 
     evaluate_policy(model, env, n_eval_episodes=5, warn=False)
 
 
 @pytest.mark.parametrize("model_class", [A2C, DDPG, DQN, PPO, SAC, TD3])
-@pytest.mark.parametrize("env", ["Pendulum-v1", "CartPole-v1", DummyMultidimensionalAction()])
+@pytest.mark.parametrize(
+    "env", ["Pendulum-v1", "CartPole-v1", DummyMultidimensionalAction()]
+)
 def test_action_spaces(model_class, env):
     kwargs = {}
     if model_class in [SAC, DDPG, TD3]:
-        supported_action_space = env == "Pendulum-v1" or isinstance(env, DummyMultidimensionalAction)
+        supported_action_space = env == "Pendulum-v1" or isinstance(
+            env, DummyMultidimensionalAction
+        )
         kwargs["learning_starts"] = 2
         kwargs["train_freq"] = 32
     elif model_class == DQN:
